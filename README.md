@@ -76,4 +76,4 @@ View output and any errors in the output panel.
 
 
 🙌 Credits
-Developed by [Your Name] as a semester project for Compiler Design using Python.
+Developed by Kritarth Uddhav Shashank Pragyan as a semester project for Compiler Design using Python.
