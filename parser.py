@@ -59,7 +59,8 @@ def p_declaration_assign(p):
 
 def p_type(p):
     '''type : INT
-            | CHAR'''
+            | CHAR
+            | STRING'''
     p[0] = p[1]
 
 def p_assignment(p):
@@ -75,17 +76,16 @@ def p_if_statement(p):
     if len(p) == 6:
         label = new_label()
         intermediate_code.append(('ifFalse', p[3], label))
-        # Generate code for the block
-        block_code = p[5]
+        p[5]
         intermediate_code.append(('label', label))
     else:
         label_else = new_label()
         label_end = new_label()
         intermediate_code.append(('ifFalse', p[3], label_else))
-        block_code = p[5]
+        p[5]
         intermediate_code.append(('goto', label_end))
         intermediate_code.append(('label', label_else))
-        else_block = p[7]
+        p[7]
         intermediate_code.append(('label', label_end))
 
 def p_while_statement(p):
@@ -100,13 +100,35 @@ def p_while_statement(p):
 
 def p_io_statement(p):
     '''io_statement : PRINTF LPAREN STRING RPAREN SEMI
+                    | PRINTF LPAREN STRING COMMA ID RPAREN SEMI
                     | SCANF LPAREN STRING COMMA AMPERSAND ID RPAREN SEMI'''
     if p[1] == 'printf':
-        intermediate_code.append(('print', p[3]))
+        if len(p) == 6:
+            intermediate_code.append(('print_str', p[3]))
+        else:
+            fmt = p[3]
+            varname = p[5]
+            if fmt == '%d':
+                intermediate_code.append(('print_int', varname))
+            elif fmt == '%c':
+                intermediate_code.append(('print_char', varname))
+            elif fmt == '%s':
+                intermediate_code.append(('print_str_var', varname))
+            else:
+                print(f"Unsupported printf format: {fmt}")
     else:
-        if p[6] not in symbol_table:
-            print(f"Semantic Error: Undeclared variable '{p[6]}'")
-        intermediate_code.append(('scanf', p[6]))
+        varname = p[6]
+        fmt = p[3]
+        if varname not in symbol_table:
+            print(f"Semantic Error: Undeclared variable '{varname}'")
+        if fmt == '%d':
+            intermediate_code.append(('input_int', varname))
+        elif fmt == '%c':
+            intermediate_code.append(('input_char', varname))
+        elif fmt == '%s':
+            intermediate_code.append(('input_str', varname))
+        else:
+            print(f"Unsupported scanf format: {fmt}")
 
 def p_expression_binop(p):
     '''expression : expression PLUS expression

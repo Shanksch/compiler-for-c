@@ -40,14 +40,60 @@ class SimpleVM:
                 _, message = instr
                 output_callback(str(message))
 
+            elif op == 'print_str':
+                _, value = instr
+                output_callback(str(value))
+
+            elif op == 'print_var':
+                _, var = instr
+                val = self.resolve(var)
+                output_callback(str(val))
+
+            elif op == 'print_char':
+                _, var = instr
+                val = self.resolve(var)
+                output_callback(str(val)[0] if val else '')
+
+            elif op == 'print_int':
+                _, var = instr
+                val = self.resolve(var)
+                try:
+                    output_callback(str(int(val)))
+                except ValueError:
+                    output_callback(f"(error printing int: {val})")
+
+            elif op == 'print_str_var':
+                _, var = instr
+                val = self.resolve(var)
+                output_callback(str(val))
+
             elif op == 'scanf':
                 _, var = instr
-                value = self.gui_input(f"Enter value for {var}:")
+                value = self.gui_input(f"Enter integer value for {var}:")
                 try:
                     self.variables[var] = int(value)
                 except ValueError:
                     output_callback(f"Invalid input for {var}, defaulting to 0.")
                     self.variables[var] = 0
+
+            elif op == 'input_int':
+                _, var = instr
+                value = self.gui_input(f"Enter integer value for {var}:")
+                try:
+                    self.variables[var] = int(value)
+                except ValueError:
+                    output_callback(f"Invalid input for {var}, defaulting to 0.")
+                    self.variables[var] = 0
+
+            elif op == 'input_char':
+                _, var = instr
+                value = self.gui_input(f"Enter a character for {var}:")
+                self.variables[var] = value[0] if value else 'a'
+
+            elif op == 'input_str':
+                _, var = instr
+                value = self.gui_input(f"Enter a string for {var}:")
+                self.variables[var] = value if value else ""
 
             elif op == 'ifFalse':
                 _, condition, label = instr
@@ -62,7 +108,7 @@ class SimpleVM:
                 continue
 
             elif op == 'label':
-                pass  # labels already processed
+                pass
 
             else:
                 output_callback(f"Unknown instruction: {instr}")
