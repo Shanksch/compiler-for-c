@@ -80,15 +80,19 @@ class KUSPCompiler:
         symbol_table.clear()
         result = parser.parse(code)
 
+        # Store the intermediate code in the class instance
+        self.intermediate_code = intermediate_code.copy()
+
         self.output_box.insert(tk.END, "\nSymbol Table:\n")
         for var, typ in symbol_table.items():
-            self.output_box.insert(tk.END, f"{var} : {typ}\n")
+           self.output_box.insert(tk.END, f"{var} : {typ}\n")
 
         self.output_box.insert(tk.END, "\nIntermediate Code:\n")
-        for line in intermediate_code:
+        for line in self.intermediate_code:
             self.output_box.insert(tk.END, f"{line}\n")
 
         self.output_box.insert(tk.END, "\n✅ Compilation complete.\n")
+
 
     def clear_output(self):
         self.output_box.delete(1.0, tk.END)
@@ -108,3 +112,4 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = KUSPCompiler(root)
     root.mainloop()
+    

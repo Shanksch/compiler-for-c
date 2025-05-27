@@ -3,8 +3,7 @@ from lexer import tokens  # Import tokens from lexer.py
 
 symbol_table = {}
 
-# --- Grammar Rules ---
-
+# --- Temporary and Label Generators ---
 temp_count = 0
 label_count = 0
 
@@ -19,6 +18,8 @@ def new_label():
     return f'L{label_count}'
 
 intermediate_code = []
+
+# --- Grammar Rules ---
 
 def p_program(p):
     '''program : program statement
@@ -53,7 +54,7 @@ def p_declaration(p):
 def p_declaration_assign(p):
     'declaration : type ID EQ expression SEMI'
     symbol_table[p[2]] = p[1]
-    intermediate_code.append(f"{p[2]} = {p[4]}")
+    intermediate_code.append(('assign', p[2], p[4]))
     p[0] = ('declare_assign', p[1], p[2], p[4])
 
 def p_type(p):
@@ -65,7 +66,7 @@ def p_assignment(p):
     'assignment : ID EQ expression SEMI'
     if p[1] not in symbol_table:
         print(f"Semantic Error: Undeclared variable '{p[1]}'")
-    intermediate_code.append(f"{p[1]} = {p[3]}")
+    intermediate_code.append(('assign', p[1], p[3]))
     p[0] = ('assign', p[1], p[3])
 
 def p_if_statement(p):
@@ -73,38 +74,39 @@ def p_if_statement(p):
                     | IF LPAREN expression RPAREN block ELSE block'''
     if len(p) == 6:
         label = new_label()
-        intermediate_code.append(f"ifFalse {p[3]} goto {label}")
-        p[5]  # already executed in block
-        intermediate_code.append(f"{label}:")
+        intermediate_code.append(('ifFalse', p[3], label))
+        # Generate code for the block
+        block_code = p[5]
+        intermediate_code.append(('label', label))
     else:
         label_else = new_label()
         label_end = new_label()
-        intermediate_code.append(f"ifFalse {p[3]} goto {label_else}")
-        p[5]
-        intermediate_code.append(f"goto {label_end}")
-        intermediate_code.append(f"{label_else}:")
-        p[7]
-        intermediate_code.append(f"{label_end}:")
+        intermediate_code.append(('ifFalse', p[3], label_else))
+        block_code = p[5]
+        intermediate_code.append(('goto', label_end))
+        intermediate_code.append(('label', label_else))
+        else_block = p[7]
+        intermediate_code.append(('label', label_end))
 
 def p_while_statement(p):
     'while_statement : WHILE LPAREN expression RPAREN block'
     start = new_label()
     end = new_label()
-    intermediate_code.append(f"{start}:")
-    intermediate_code.append(f"ifFalse {p[3]} goto {end}")
+    intermediate_code.append(('label', start))
+    intermediate_code.append(('ifFalse', p[3], end))
     p[5]
-    intermediate_code.append(f"goto {start}")
-    intermediate_code.append(f"{end}:")
+    intermediate_code.append(('goto', start))
+    intermediate_code.append(('label', end))
 
 def p_io_statement(p):
     '''io_statement : PRINTF LPAREN STRING RPAREN SEMI
                     | SCANF LPAREN STRING COMMA AMPERSAND ID RPAREN SEMI'''
     if p[1] == 'printf':
-        intermediate_code.append(f'print "{p[3]}"')
+        intermediate_code.append(('print', p[3]))
     else:
         if p[6] not in symbol_table:
             print(f"Semantic Error: Undeclared variable '{p[6]}'")
-        intermediate_code.append(f'scanf {p[6]}')
+        intermediate_code.append(('scanf', p[6]))
 
 def p_expression_binop(p):
     '''expression : expression PLUS expression
@@ -120,7 +122,7 @@ def p_expression_binop(p):
                   | expression AND expression
                   | expression OR expression'''
     temp = new_temp()
-    intermediate_code.append(f"{temp} = {p[1]} {p[2]} {p[3]}")
+    intermediate_code.append(('binop', temp, p[2], p[1], p[3]))
     p[0] = temp
 
 def p_expression_group(p):
@@ -147,17 +149,22 @@ def p_error(p):
     else:
         print("Syntax Error: Unexpected end of input")
 
+# Build the parser
 parser = yacc.yacc()
 
-# Test driver
+# --- For Testing ---
 if __name__ == "__main__":
     with open("yest.c", "r") as f:
         data = f.read()
     parser.parse(data)
     print("\nParsing completed.\n")
-    print("Generated Intermediate Code:\n")
-    for line in intermediate_code:
-        print(line)
+    print("Symbol Table:")
+    for k, v in symbol_table.items():
+        print(f"{k}: {v}")
+
+    print("\nGenerated Intermediate Code:")
+    for instr in intermediate_code:
+        print(instr)
 
 def generate_intermediate_code(parsed_tree):
     return intermediate_code
