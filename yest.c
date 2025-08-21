@@ -6,4 +6,7 @@ int main() {
     }
     int b;
     scanf("%d",&b);
+    int c;
+    c=a+b;
+    printf("%d",c);
 }

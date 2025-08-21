@@ -89,7 +89,7 @@ lexer = lex.lex()
 
 # For testing
 if __name__ == "__main__":
-    with open("compiler for c/yest.c", "r") as f:
+    with open("yest.c", "r") as f:
         data = f.read()
     lexer.input(data)
     for tok in lexer:

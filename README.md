@@ -22,8 +22,8 @@
 
 ## 🔧 Technologies Used
 
-- **Python 3.12+**
-- **PLY (Python Lex-Yacc)**
+- **Python 3.12**
+- **PLY (Python Lex-Yacc) Version: 3.11**
 - **Tkinter** – for the GUI
 - **Custom VM** – to execute intermediate code
 - **Dracula Theme** – for stylish UI
