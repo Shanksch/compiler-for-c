@@ -1,6 +1,6 @@
  🧠 KUSP - Mini C Compiler
 
-**KUSP** (Kritarth Uddhav Shashank Pragyan) is a custom-built mini C compiler developed in Python using the PLY (Python Lex-Yacc) library. It performs lexical analysis, parsing, semantic checks, intermediate code generation, and execution through a virtual machine. It also features a modern Graphical User Interface (GUI) for ease of interaction.
+**KUSP** is a custom-built mini C compiler developed in Python using the PLY (Python Lex-Yacc) library. It performs lexical analysis, parsing, semantic checks, intermediate code generation, and execution through a virtual machine. It also features a modern Graphical User Interface (GUI) for ease of interaction.
 
 ---
 
@@ -76,4 +76,4 @@ View output and any errors in the output panel.
 
 
 🙌 Credits
-Developed by Kritarth Uddhav Shashank Pragyan as a semester project for Compiler Design using Python.
+Developed by Shashank as a semester project for Compiler Design using Python.
